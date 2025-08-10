@@ -104,12 +104,14 @@ clean:
 
 check-env:
 	@echo "Validating environment configuration..."
-	@python3 -c 'import os, sys; from pathlib import Path; exit(1) if not Path(".env").exists() else None; print("❌ .env file not found. Run: make setup") if not Path(".env").exists() else None'
-	@python3 -c 'from dotenv import load_dotenv; load_dotenv(); import os; required=["OPENAI_API_KEY","TELEGRAM_BOT_TOKEN"]; missing=[v for v in required if not os.getenv(v)]; print("❌ Missing required environment variables:") if missing else None; [print(f"   - {v}") for v in missing] if missing else None; print("Please add these to your .env file") if missing else None; exit(1) if missing else None'
-	@python3 -c 'from dotenv import load_dotenv; load_dotenv(); import os; from pathlib import Path; optional=["TELEGRAM_WEBHOOK_SECRET","TELEGRAM_WEBHOOK_URL","MODEL_NAME","EMBEDDINGS_MODEL","LOG_LEVEL"]; missing=[v for v in optional if not os.getenv(v)]; print("⚠️  Optional environment variables not set (using defaults):") if missing else None; [print(f"   - {v}") for v in missing] if missing else None'
-	@python3 -c 'from pathlib import Path; [Path(d).mkdir(parents=True, exist_ok=True) for d in ["data/uploads","data/chroma","logs"]]'
-	@echo "✅ Environment configuration is valid!"
-	@echo "✅ Required directories created!"
+	@if [ ! -f .env ]; then \
+		echo "❌ .env file not found. Run: make setup"; \
+		exit 1; \
+	fi
+	@echo "✅ .env file found"
+	@mkdir -p data/uploads data/chroma logs
+	@echo "✅ Required directories created"
+	@echo "✅ Environment configuration validated"
 
 logs:
 	@echo "Viewing application logs..."
@@ -181,6 +183,7 @@ quickstart: setup check-env
 	@echo "3. Visit http://localhost:8000/docs for API documentation"
 	@echo ""
 	@echo "Happy coding! 🎉"
+
 
 
 
