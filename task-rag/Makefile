@@ -178,18 +178,17 @@ backup:
 # Development utilities
 shell:
 	@echo "Starting Python shell with app context..."
-	python -c "
-import sys
-sys.path.append('.')
-from app.config import Settings
-from app.services.rag_service import initialize_rag_service
-from app.services.task_service import initialize_task_service
-settings = Settings()
-print('Task Management RAG Shell')
-print('Available: settings, initialize_rag_service, initialize_task_service')
-import code
-code.interact(local=locals())
-"
+	@python -c "\
+import sys; \
+sys.path.append('.'); \
+from app.config import Settings; \
+from app.services.rag_service import initialize_rag_service; \
+from app.services.task_service import initialize_task_service; \
+settings = Settings(); \
+print('Task Management RAG Shell'); \
+print('Available: settings, initialize_rag_service, initialize_task_service'); \
+import code; \
+code.interact(local=locals());"
 
 # Health check
 health:
@@ -209,5 +208,6 @@ quickstart: setup check-env
 	@echo "3. Visit http://localhost:8000/docs for API documentation"
 	@echo ""
 	@echo "Happy coding! 🎉"
+
 
 
