@@ -199,11 +199,13 @@ async def get_ingestion_status(
                 "status": "healthy",
                 "rag_collection": collection_info,
                 "task_statistics": task_stats,
-                "timestamp": logger.handlers[0].formatter.formatTime(
-                    logging.LogRecord("", 0, "", 0, "", (), None)
-                )
-                if logger.handlers
-                else None,
+                "timestamp": (
+                    logger.handlers[0].formatter.formatTime(
+                        logging.LogRecord("", 0, "", 0, "", (), None)
+                    )
+                    if logger.handlers
+                    else None
+                ),
             }
         )
 

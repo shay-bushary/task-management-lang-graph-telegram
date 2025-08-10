@@ -140,9 +140,9 @@ async def cleanup_session(
         return {
             "session_id": session_id,
             "cleaned_up": success,
-            "message": "Session cleaned up successfully"
-            if success
-            else "Session not found",
+            "message": (
+                "Session cleaned up successfully" if success else "Session not found"
+            ),
         }
 
     except Exception as e:

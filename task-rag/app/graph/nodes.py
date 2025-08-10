@@ -82,9 +82,9 @@ If you need to use tools, call them with the appropriate parameters. The tools w
         model="gpt-4-turbo-preview",
         temperature=0.7,
         streaming=True,
-        callbacks=[StreamingCallbackHandler(session_id)]
-        if _websocket_broadcaster
-        else [],
+        callbacks=(
+            [StreamingCallbackHandler(session_id)] if _websocket_broadcaster else []
+        ),
     )
 
     # Bind tools to the LLM

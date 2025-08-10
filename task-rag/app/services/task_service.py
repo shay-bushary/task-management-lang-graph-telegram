@@ -293,9 +293,11 @@ class TaskService:
                 try:
                     task = Task(
                         title=task_data.title.strip(),
-                        description=task_data.description.strip()
-                        if task_data.description
-                        else None,
+                        description=(
+                            task_data.description.strip()
+                            if task_data.description
+                            else None
+                        ),
                     )
 
                     self._tasks[task.id] = task
@@ -350,20 +352,24 @@ class TaskService:
                 "total_tasks": total_tasks,
                 "status_counts": status_counts,
                 "completion_rate": round(completion_rate, 2),
-                "oldest_task": {
-                    "id": str(oldest_task.id),
-                    "title": oldest_task.title,
-                    "created_at": oldest_task.created_at.isoformat(),
-                }
-                if oldest_task
-                else None,
-                "newest_task": {
-                    "id": str(newest_task.id),
-                    "title": newest_task.title,
-                    "created_at": newest_task.created_at.isoformat(),
-                }
-                if newest_task
-                else None,
+                "oldest_task": (
+                    {
+                        "id": str(oldest_task.id),
+                        "title": oldest_task.title,
+                        "created_at": oldest_task.created_at.isoformat(),
+                    }
+                    if oldest_task
+                    else None
+                ),
+                "newest_task": (
+                    {
+                        "id": str(newest_task.id),
+                        "title": newest_task.title,
+                        "created_at": newest_task.created_at.isoformat(),
+                    }
+                    if newest_task
+                    else None
+                ),
             }
 
 

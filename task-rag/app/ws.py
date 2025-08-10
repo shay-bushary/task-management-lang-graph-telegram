@@ -176,9 +176,9 @@ class WebSocketManager:
                         "messages": [
                             {
                                 "type": msg.__class__.__name__,
-                                "content": msg.content
-                                if hasattr(msg, "content")
-                                else str(msg),
+                                "content": (
+                                    msg.content if hasattr(msg, "content") else str(msg)
+                                ),
                             }
                             for msg in state.get("messages", [])
                         ]
@@ -195,9 +195,11 @@ class WebSocketManager:
                         session_id,
                         {
                             "type": last_message.__class__.__name__,
-                            "content": last_message.content
-                            if hasattr(last_message, "content")
-                            else str(last_message),
+                            "content": (
+                                last_message.content
+                                if hasattr(last_message, "content")
+                                else str(last_message)
+                            ),
                         },
                     )
 

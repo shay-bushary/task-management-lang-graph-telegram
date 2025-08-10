@@ -195,17 +195,19 @@ def create_app() -> FastAPI:
 
             health_status = {
                 "status": "healthy",
-                "timestamp": logger.handlers[0].formatter.formatTime(
-                    logging.LogRecord("", 0, "", 0, "", (), None)
-                )
-                if logger.handlers
-                else None,
+                "timestamp": (
+                    logger.handlers[0].formatter.formatTime(
+                        logging.LogRecord("", 0, "", 0, "", (), None)
+                    )
+                    if logger.handlers
+                    else None
+                ),
                 "version": "1.0.0",
                 "services": {
                     "rag_service": "initialized" if rag_service else "not_initialized",
-                    "task_service": "initialized"
-                    if task_service
-                    else "not_initialized",
+                    "task_service": (
+                        "initialized" if task_service else "not_initialized"
+                    ),
                 },
                 "directories": {
                     "uploads": "exists" if uploads_exists else "missing",
@@ -231,11 +233,13 @@ def create_app() -> FastAPI:
                 content={
                     "status": "unhealthy",
                     "error": str(e),
-                    "timestamp": logger.handlers[0].formatter.formatTime(
-                        logging.LogRecord("", 0, "", 0, "", (), None)
-                    )
-                    if logger.handlers
-                    else None,
+                    "timestamp": (
+                        logger.handlers[0].formatter.formatTime(
+                            logging.LogRecord("", 0, "", 0, "", (), None)
+                        )
+                        if logger.handlers
+                        else None
+                    ),
                 },
             )
 
