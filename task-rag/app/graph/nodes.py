@@ -24,10 +24,10 @@ def set_websocket_broadcaster(broadcaster: Callable[[str, str], None]) -> None:
 
 class StreamingCallbackHandler(BaseCallbackHandler):
     """Callback handler for streaming tokens to WebSocket."""
-    
+
     def __init__(self, session_id: str):
         self.session_id = session_id
-    
+
     def on_llm_new_token(self, token: str, **kwargs: Any) -> None:
         """Called when a new token is generated."""
         if _websocket_broadcaster:
@@ -36,10 +36,10 @@ class StreamingCallbackHandler(BaseCallbackHandler):
 
 def call_llm(state: AgentState) -> Dict[str, Any]:
     """Call the LLM with the current state and system prompt.
-    
+
     Args:
         state: The current agent state containing messages
-        
+
     Returns:
         Updated state with the LLM response
     """
@@ -64,69 +64,71 @@ If you need to use tools, call them with the appropriate parameters. The tools w
 
     # Get the current messages
     messages = list(state["messages"])
-    
+
     # Add system message if not already present
     if not messages or not isinstance(messages[0], SystemMessage):
         messages.insert(0, SystemMessage(content=system_prompt))
-    
+
     # Extract session_id from the last human message metadata if available
     session_id = "default"
     for msg in reversed(messages):
-        if isinstance(msg, HumanMessage) and hasattr(msg, 'additional_kwargs'):
-            session_id = msg.additional_kwargs.get('session_id', 'default')
+        if isinstance(msg, HumanMessage) and hasattr(msg, "additional_kwargs"):
+            session_id = msg.additional_kwargs.get("session_id", "default")
             break
-    
+
     # Create LLM instance with tools
     # Note: In a real implementation, this would be injected via dependencies
     llm = ChatOpenAI(
         model="gpt-4-turbo-preview",
         temperature=0.7,
         streaming=True,
-        callbacks=[StreamingCallbackHandler(session_id)] if _websocket_broadcaster else []
+        callbacks=[StreamingCallbackHandler(session_id)]
+        if _websocket_broadcaster
+        else [],
     )
-    
+
     # Bind tools to the LLM
     llm_with_tools = llm.bind_tools(TOOLS)
-    
+
     # Invoke the LLM
     response = llm_with_tools.invoke(messages)
-    
+
     # Return updated state
     return {"messages": [response]}
 
 
 def take_action(state: AgentState) -> Dict[str, Any]:
     """Execute tool calls and return tool messages.
-    
+
     Args:
         state: The current agent state containing messages
-        
+
     Returns:
         Updated state with tool execution results
     """
     # Get the last message (should be an AI message with tool calls)
     messages = list(state["messages"])
     last_message = messages[-1]
-    
+
     if not isinstance(last_message, AIMessage) or not last_message.tool_calls:
         # No tool calls to execute
         return {"messages": []}
-    
+
     # Execute each tool call
     tool_messages = []
-    
+
     for tool_call in last_message.tool_calls:
         tool_name = tool_call["name"]
         tool_args = tool_call["args"]
         tool_call_id = tool_call["id"]
-        
+
         # Find the tool function
         tool_func = None
         for tool in TOOLS:
             if tool.name == tool_name:
                 tool_func = tool
                 break
-        
+
         if tool_func is None:
             # Tool not found
             result = f"Error: Tool '{tool_name}' not found"
@@ -136,13 +138,9 @@ def take_action(state: AgentState) -> Dict[str, Any]:
                 result = tool_func.invoke(tool_args)
             except Exception as e:
                 result = f"Error executing {tool_name}: {str(e)}"
-        
-        # Create tool message
-        tool_message = ToolMessage(
-            content=result,
-            tool_call_id=tool_call_id
-        )
-        tool_messages.append(tool_message)
-    
-    return {"messages": tool_messages}
 
+        # Create tool message
+        tool_message = ToolMessage(content=result, tool_call_id=tool_call_id)
+        tool_messages.append(tool_message)
+
+    return {"messages": tool_messages}

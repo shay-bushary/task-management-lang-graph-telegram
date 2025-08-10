@@ -18,9 +18,7 @@ def get_settings() -> Settings:
     return settings
 
 
-def get_llm(
-    settings: Annotated[Settings, Depends(get_settings)]
-) -> ChatOpenAI:
+def get_llm(settings: Annotated[Settings, Depends(get_settings)]) -> ChatOpenAI:
     """Get OpenAI LLM instance."""
     return ChatOpenAI(
         model=settings.model_name,
@@ -31,7 +29,7 @@ def get_llm(
 
 
 def get_embeddings(
-    settings: Annotated[Settings, Depends(get_settings)]
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> OpenAIEmbeddings:
     """Get OpenAI embeddings instance."""
     return OpenAIEmbeddings(
@@ -42,34 +40,30 @@ def get_embeddings(
 
 def get_vectorstore(
     settings: Annotated[Settings, Depends(get_settings)],
-    embeddings: Annotated[OpenAIEmbeddings, Depends(get_embeddings)]
+    embeddings: Annotated[OpenAIEmbeddings, Depends(get_embeddings)],
 ) -> Chroma:
     """Get Chroma vector store instance."""
     # Ensure the chroma directory exists
     settings.chroma_dir.mkdir(parents=True, exist_ok=True)
-    
+
     return Chroma(
         persist_directory=str(settings.chroma_dir),
         embedding_function=embeddings,
-        collection_name="task_documents"
+        collection_name="task_documents",
     )
 
 
 def get_retriever(
     settings: Annotated[Settings, Depends(get_settings)],
-    vectorstore: Annotated[Chroma, Depends(get_vectorstore)]
+    vectorstore: Annotated[Chroma, Depends(get_vectorstore)],
 ) -> VectorStoreRetriever:
     """Get vector store retriever instance."""
     return vectorstore.as_retriever(
-        search_type="similarity",
-        search_kwargs={"k": settings.retrieval_k}
+        search_type="similarity", search_kwargs={"k": settings.retrieval_k}
     )
 
 
-def ensure_directories(
-    settings: Annotated[Settings, Depends(get_settings)]
-) -> None:
+def ensure_directories(settings: Annotated[Settings, Depends(get_settings)]) -> None:
     """Ensure required directories exist."""
     settings.chroma_dir.mkdir(parents=True, exist_ok=True)
     settings.uploads_dir.mkdir(parents=True, exist_ok=True)
-
