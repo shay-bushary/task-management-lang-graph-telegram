@@ -104,39 +104,12 @@ clean:
 
 check-env:
 	@echo "Validating environment configuration..."
-	@python -c "\
-import os; \
-from pathlib import Path; \
-\
-if not Path('.env').exists(): \
-    print('❌ .env file not found. Run: make setup'); \
-    exit(1); \
-\
-from dotenv import load_dotenv; \
-load_dotenv(); \
-\
-required_vars = ['OPENAI_API_KEY', 'TELEGRAM_BOT_TOKEN']; \
-optional_vars = ['TELEGRAM_WEBHOOK_SECRET', 'TELEGRAM_WEBHOOK_URL', 'MODEL_NAME', 'EMBEDDINGS_MODEL', 'LOG_LEVEL']; \
-\
-missing_required = [var for var in required_vars if not os.getenv(var)]; \
-missing_optional = [var for var in optional_vars if not os.getenv(var)]; \
-\
-if missing_required: \
-    print('❌ Missing required environment variables:'); \
-    [print(f'   - {var}') for var in missing_required]; \
-    print('Please add these to your .env file'); \
-    exit(1); \
-\
-if missing_optional: \
-    print('⚠️  Optional environment variables not set (using defaults):'); \
-    [print(f'   - {var}') for var in missing_optional]; \
-\
-print('✅ Environment configuration is valid!'); \
-\
-dirs = ['data/uploads', 'data/chroma', 'logs']; \
-[Path(dir_path).mkdir(parents=True, exist_ok=True) for dir_path in dirs]; \
-\
-print('✅ Required directories created!');"
+	@python3 -c 'import os, sys; from pathlib import Path; exit(1) if not Path(".env").exists() else None; print("❌ .env file not found. Run: make setup") if not Path(".env").exists() else None'
+	@python3 -c 'from dotenv import load_dotenv; load_dotenv(); import os; required=["OPENAI_API_KEY","TELEGRAM_BOT_TOKEN"]; missing=[v for v in required if not os.getenv(v)]; print("❌ Missing required environment variables:") if missing else None; [print(f"   - {v}") for v in missing] if missing else None; print("Please add these to your .env file") if missing else None; exit(1) if missing else None'
+	@python3 -c 'from dotenv import load_dotenv; load_dotenv(); import os; from pathlib import Path; optional=["TELEGRAM_WEBHOOK_SECRET","TELEGRAM_WEBHOOK_URL","MODEL_NAME","EMBEDDINGS_MODEL","LOG_LEVEL"]; missing=[v for v in optional if not os.getenv(v)]; print("⚠️  Optional environment variables not set (using defaults):") if missing else None; [print(f"   - {v}") for v in missing] if missing else None'
+	@python3 -c 'from pathlib import Path; [Path(d).mkdir(parents=True, exist_ok=True) for d in ["data/uploads","data/chroma","logs"]]'
+	@echo "✅ Environment configuration is valid!"
+	@echo "✅ Required directories created!"
 
 logs:
 	@echo "Viewing application logs..."
@@ -208,6 +181,7 @@ quickstart: setup check-env
 	@echo "3. Visit http://localhost:8000/docs for API documentation"
 	@echo ""
 	@echo "Happy coding! 🎉"
+
 
 
 
